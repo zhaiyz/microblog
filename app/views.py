@@ -4,6 +4,8 @@ from app import app, db, lm, oid
 from .forms import LoginForm
 from .models import User
 
+from datetime import datetime
+
 
 import sys 
 reload(sys) 
@@ -64,6 +66,10 @@ def after_login(resp):
 @app.before_request
 def before_request():
 	g.user = current_user
+	if g.user.is_authenticated:
+		g.user.last_seen = datetime.utcnow()
+		db.session.add(g.user)
+		db.session.commit()
 
 @app.route('/logout')
 def logout():
